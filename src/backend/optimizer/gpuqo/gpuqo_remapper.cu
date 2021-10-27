@@ -55,11 +55,11 @@ BitmapsetOUT Remapper<BitmapsetIN,BitmapsetOUT>::remapRelid(BitmapsetIN id)
 }
 
 template<typename BitmapsetIN, typename BitmapsetOUT>
-BitmapsetOUT Remapper<BitmapsetIN,BitmapsetOUT>::remapRelidNoComposite(BitmapsetIN id)
+BitmapsetOUT Remapper<BitmapsetIN,BitmapsetOUT>::remapRelidNoComposite(BitmapsetIN id, GpuqoPlannerInfo<BitmapsetIN> *info_from)
 {
     BitmapsetOUT out = BitmapsetOUT(0);
     for (remapper_transf_el_t<BitmapsetIN> &e : transf){
-        if (e.from_relid.size() > 1)
+        if (e.from_relid.size() > 1 || info_from->base_rels[e.from_relid.lowestPos()-1].composite)
             continue;
         if (e.from_relid.intersects(id)){
             out.set(e.to_idx+1);
@@ -85,6 +85,7 @@ BitmapsetIN Remapper<BitmapsetIN,BitmapsetOUT>::remapRelidInv(BitmapsetOUT id)
 template<typename BitmapsetIN, typename BitmapsetOUT>
 void Remapper<BitmapsetIN,BitmapsetOUT>::remapEdgeTable(BitmapsetIN* edge_table_from, 
                                             BitmapsetOUT* edge_table_to,
+                                            GpuqoPlannerInfo<BitmapsetIN> *info_from,
                                             bool ignore_composite)
 {
     for (remapper_transf_el_t<BitmapsetIN> &e : transf){
@@ -95,7 +96,7 @@ void Remapper<BitmapsetIN,BitmapsetOUT>::remapEdgeTable(BitmapsetIN* edge_table_
             int from_idx = temp.lowestPos()-1;
 
             if (ignore_composite)
-                edge_table_to[e.to_idx] |= remapRelidNoComposite(edge_table_from[from_idx]);
+                edge_table_to[e.to_idx] |= remapRelidNoComposite(edge_table_from[from_idx], info_from);
             else
                 edge_table_to[e.to_idx] |= remapRelid(edge_table_from[from_idx]);
 
@@ -185,7 +186,9 @@ void Remapper<BitmapsetIN,BitmapsetOUT>::remapEqClass(BitmapsetIN* eq_class_from
 
             }
         }
-        fks_to[idx_l_to] = remapRelidNoComposite(fks_from[idx_l_from]);
+
+        if (id_l_from.size() == 1 && !info_from->base_rels[id_l_from.lowestPos()-1].composite)
+            fks_to[idx_l_to] = remapRelidNoComposite(fks_from[idx_l_from], info_from);
         // choose one at random
         vars_to[idx_l_to] = vars_from[idx_l_from]; 
         if (id_l_from.size() > 1) {
@@ -218,10 +221,10 @@ GpuqoPlannerInfo<BitmapsetOUT> *Remapper<BitmapsetIN,BitmapsetOUT>::remapPlanner
 
     initGpuqoPlannerInfo(info);
 
-    remapEdgeTable(old_info->edge_table, info->edge_table);
+    remapEdgeTable(old_info->edge_table, info->edge_table, old_info);
 
     if (gpuqo_spanning_tree_enable)
-        remapEdgeTable(old_info->subtrees, info->subtrees);
+        remapEdgeTable(old_info->subtrees, info->subtrees, old_info);
 
 	remapBaseRels(old_info->base_rels, info->base_rels);
 

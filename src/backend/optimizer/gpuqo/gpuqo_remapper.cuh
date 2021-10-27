@@ -32,9 +32,9 @@ private:
     void countEqClasses(GpuqoPlannerInfo<BitmapsetIN>* info, 
                                             int* n, int* n_sels, int *n_fk, int *n_vars);
     BitmapsetOUT remapRelid(BitmapsetIN id);
-    BitmapsetOUT remapRelidNoComposite(BitmapsetIN id);
+    BitmapsetOUT remapRelidNoComposite(BitmapsetIN fid, GpuqoPlannerInfo<BitmapsetIN> *info_from);
     BitmapsetIN remapRelidInv(BitmapsetOUT id);
-    void remapEdgeTable(BitmapsetIN* edge_table_from, BitmapsetOUT* edge_table_to,
+    void remapEdgeTable(BitmapsetIN* edge_table_from, BitmapsetOUT* edge_table_to, GpuqoPlannerInfo<BitmapsetIN> *info_from,
                         bool ignore_composite=false);
     void remapBaseRels(BaseRelation<BitmapsetIN>* base_rels_from,
                         BaseRelation<BitmapsetOUT>* base_rels_to);
