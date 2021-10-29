@@ -84,7 +84,7 @@ static bfs_bicc_bfs_lv_ret<BitmapsetN> bfs_bicc_bfs_lv(const uint32_t* L,
 
 template<typename BitmapsetN>
 __device__ 
-static void qbfs_bicc_bfs(BitmapsetN relid, const BitmapsetN* edges,
+static void bfs_bicc_bfs(BitmapsetN relid, const BitmapsetN* edges,
                             volatile uint32_t* P, volatile uint32_t* L, 
                             volatile BitmapsetN* LQ)
 {
