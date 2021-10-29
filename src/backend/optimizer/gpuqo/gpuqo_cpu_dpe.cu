@@ -192,6 +192,7 @@ public:
     #endif 
 
         depbufs.depbuf_next->push(join_rel, &left_rel, &right_rel);
+        depbufs.depbuf_next->push(join_rel, &right_rel, &left_rel);
 
         LOG_DEBUG("Inserted %u (%d)\n", relid.toUint(), join_rel->num_entry.load());
         if (depbufs.depbuf_next->full()){
