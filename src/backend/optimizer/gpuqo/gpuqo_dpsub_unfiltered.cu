@@ -71,6 +71,7 @@ struct unrankEvaluateDPSub : public thrust::unary_function< uint_t<BitmapsetN>,t
     uint_t<BitmapsetN> offset;
     int n_splits;
     BinaryFunction enum_functor;
+    GpuqoPlannerInfo<BitmapsetN>* info;
 public:
     unrankEvaluateDPSub(
         BinaryFunction _enum_functor,
@@ -78,9 +79,10 @@ public:
         thrust::device_ptr<uint_t<BitmapsetN> > _binoms,
         int _qss,
         uint_t<BitmapsetN> _offset,
-        int _n_splits
+        int _n_splits,
+        GpuqoPlannerInfo<BitmapsetN>* _info
     ) : enum_functor(_enum_functor), sq(_sq), binoms(_binoms), 
-        qss(_qss), offset(_offset), n_splits(_n_splits)
+        qss(_qss), offset(_offset), n_splits(_n_splits), info(_info)
     {}
  
     __device__
@@ -102,7 +104,13 @@ public:
 
         LOG_DEBUG("[%lu] s=%u\n", (uint64_t)tid, s.toUint());
 
-        JoinRelation<BitmapsetN> jr_out = enum_functor(relid, cid);
+        JoinRelation<BitmapsetN> jr_out;
+        
+        if (is_connected(relid, info->edge_table))
+            jr_out = enum_functor(relid, cid);
+        else
+            relid = BitmapsetN(0);
+
         return thrust::tuple<BitmapsetN, JoinRelation<BitmapsetN> >(relid, jr_out);
     }
 };
@@ -166,7 +174,8 @@ int dpsub_unfiltered_iteration(int iter, dpsub_iter_param_t<BitmapsetN> &params)
                 params.gpu_binoms.data(),
                 iter,
                 id_offset,
-                threads_per_set
+                threads_per_set,
+                params.gpu_info
             ) 
         );
         STOP_TIMING(unrank);
