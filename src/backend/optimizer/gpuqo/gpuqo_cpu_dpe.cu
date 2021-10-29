@@ -411,6 +411,11 @@ gpuqo_cpu_dpe(GpuqoPlannerInfo<BitmapsetN>* info, CPUAlgorithm<BitmapsetN, hasht
     delete[] join_func.threads;
     delete[] join_func.thread_args;
 
+    Assert(join_func.depbufs.depbuf_curr->empty());
+    delete join_func.depbufs.depbuf_curr;
+    Assert(join_func.depbufs.depbuf_next->empty());
+    delete join_func.depbufs.depbuf_next;
+
     STOP_TIMING(gpuqo_cpu_dpe);
     PRINT_TIMING(gpuqo_cpu_dpe);
 
