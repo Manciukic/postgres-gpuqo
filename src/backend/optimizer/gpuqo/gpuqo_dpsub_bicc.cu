@@ -38,7 +38,11 @@ uint32_t dpsub_bicc_evaluation(int iter, uint64_t n_remaining_sets,
     threads_per_set = WARP_SIZE;
     
     n_joins_per_thread = ceil_div(params.n_joins_per_set, threads_per_set);
+#ifndef DISABLE_WARP_REDUCTION
     n_sets_per_iteration = min(params.scratchpad_size, n_pending_sets);
+#else
+    n_sets_per_iteration = min(params.scratchpad_size/threads_per_set, n_pending_sets);
+#endif
 
     LOG_PROFILE("n_joins_per_thread=%lu, n_sets_per_iteration=%u, threads_per_set=%u, factor=%u\n",
         n_joins_per_thread,
@@ -76,7 +80,11 @@ uint32_t dpsub_bicc_evaluation(int iter, uint64_t n_remaining_sets,
         DUMP_VECTOR(params.gpu_scratchpad_keys.begin(), params.gpu_scratchpad_keys.begin()+n_eval_sets);
         DUMP_VECTOR(params.gpu_scratchpad_vals.begin(), params.gpu_scratchpad_vals.begin()+n_eval_sets);
 
+#ifndef DISABLE_WARP_REDUCTION
         dpsub_scatter<BitmapsetN>(n_eval_sets, params);
+#else
+        dpsub_prune_scatter(threads_per_set, threads_per_set*n_eval_sets, params);
+#endif
 
         n_pending_sets -= n_eval_sets;
     }

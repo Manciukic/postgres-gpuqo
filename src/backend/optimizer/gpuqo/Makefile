@@ -57,6 +57,10 @@ ifeq ($(disable_ccc),yes)
 NVCCFLAGS += -DDISABLE_CCC
 endif
 
+ifeq ($(disable_warp_reduction),yes)
+NVCCFLAGS += -DDISABLE_WARP_REDUCTION
+endif
+
 ifeq ($(simulate_complex_cost_function),yes)
 NVCCFLAGS += -DSIMULATE_COMPLEX_COST_FUNCTION
 endif

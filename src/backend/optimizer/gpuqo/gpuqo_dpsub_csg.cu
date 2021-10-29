@@ -119,7 +119,11 @@ uint32_t dpsub_csg_evaluation(int iter,
         DUMP_VECTOR(params.gpu_scratchpad_keys.begin(), params.gpu_scratchpad_keys.begin()+n_eval_sets);
         DUMP_VECTOR(params.gpu_scratchpad_vals.begin(), params.gpu_scratchpad_vals.begin()+n_eval_sets);
 
+#ifndef DISABLE_WARP_REDUCTION
         dpsub_scatter<BitmapsetN>(n_eval_sets, params);
+#else
+        dpsub_prune_scatter(threads_per_set, threads_per_set*n_eval_sets, params);
+#endif
 
         n_pending_sets -= n_eval_sets;
     }

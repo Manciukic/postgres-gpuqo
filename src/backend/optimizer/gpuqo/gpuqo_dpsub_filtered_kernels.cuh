@@ -219,9 +219,13 @@ void evaluateFilteredDPSubKernel(BitmapsetN* pending_keys, BitmapsetN* scratchpa
                 n_splits, threadIdx.x, shared_idxs[threadIdx.x], 
                         threadIdx.x, shared_costs[threadIdx.x]);
 
+#ifndef DISABLE_WARP_REDUCTION
         blockReduceMin<n_splits>(&shared_idxs[0], &shared_costs[0]);
 
         int leader = threadIdx.x & (~(n_splits-1));
+#else
+        int leader = threadIdx.x;
+#endif
 
         if (threadIdx.x == leader){
             LOG_DEBUG("red<%3d> after: idx[%3d]=%3d, cost[%3d]=%.2f\n",
@@ -233,8 +237,13 @@ void evaluateFilteredDPSubKernel(BitmapsetN* pending_keys, BitmapsetN* scratchpa
             LOG_DEBUG("[%3d] write scratch[%d] = %u (l=%u, r=%u, cost=%.2f)\n",
                 threadIdx.x, tid/n_splits, relid.toUint(), 
                 jr_out.left_rel_id.toUint(), jr_out.right_rel_id.toUint(), jr_out.cost.total);
-            scratchpad_keys[tid/n_splits] = relid;
-            scratchpad_vals[tid/n_splits] = jr_out;
+#ifndef DISABLE_WARP_REDUCTION
+            int position = tid/n_splits;
+#else
+            int position = tid;
+#endif
+            scratchpad_keys[position] = relid;
+            scratchpad_vals[position] = jr_out;
         }
     }
 }
