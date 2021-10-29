@@ -119,6 +119,12 @@ QueryTree<BitmapsetN>* gpuqo_cpu_sequential(GpuqoPlannerInfo<BitmapsetN>* info,
 
     // delete all dynamically allocated memory
     for (auto iter=memo.begin(); iter != memo.end(); ++iter){
+        LOG_DEBUG("%u: %u %u (%f)\n", 
+            iter->first.toUint(),
+            iter->second->left_rel_id.toUint(),
+            iter->second->right_rel_id.toUint(),
+            iter->second->cost.total
+        );
         delete iter->second;
     }
 
