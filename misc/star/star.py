@@ -134,8 +134,16 @@ class SnowflakeSchema:
             new_id = (*id,i)
             leaf = i <= self.n_leaves[len(id)] 
             if not leaf:
-                child_sizes = [randint(min_size,max_size) 
-                                for _ in range(self.n_dims[len(id)+1])]
+                child_sizes = [] 
+                total_children = self.n_dims[len(id)+1]
+                half = int(0.50*total_children+0.5) 
+                # esentially step distribution [10,10k] 50% and [10k,1M] 50%
+                for _ in range(half):
+                    # manual 10, 10k for now...
+                    child_sizes.append(randint(10, 10_000)) 
+                for _ in range(total_children - half):
+                    child_sizes.append(randint(min_size,max_size)) # 10k, 1M
+                print(child_sizes, "\nlen = ", len(child_sizes))
             else:
                 child_sizes = []
             yield self.__make_insert_into(new_id, size, child_sizes)
@@ -144,9 +152,6 @@ class SnowflakeSchema:
 
 
     def write_insert_into(self, f, min_size=10_000, max_size=1_000_000):
-        #TODO: pass list of files and every 100 nodes or something put the insert on the next file?
-        # *10 on max_size for fact table to go from 1M to 10M 
-        # manually multiply afters
         for out in self.__make_insert_into_rec(tuple(), [max_size], min_size, max_size):
             f.write(out)
             f.write('\n\n')
@@ -178,8 +183,21 @@ class SnowflakeSchema:
         return f"SELECT * FROM {from_clause} WHERE {where_clause}; -- {query_size}"
 
 
+card = {}
+def readCardinalities():
+    global card
+    with open(f"cardinalities.txt", 'r') as f:
+        for l in f.readlines():
+            # print(l)
+            # print(" NEXT ")
+            temp = [x.strip() for i,x in enumerate(l.split("|")) if i in (0,2)]
+            for table_name, cardinality  in zip(temp, temp[1:]):
+                if cardinality != "reltuples":
+                    card[table_name] = int(cardinality)
+    return
+
 if __name__ == "__main__":
-    # STAR 2
+    # STAR
 
     # labels for query graph
     labels = [f"{a}{b}" for a in string.ascii_lowercase for b in string.ascii_lowercase]
@@ -194,11 +212,12 @@ if __name__ == "__main__":
     #                          (0,  8, 4, 4, 0))
 
     # you need to 0,0 in the last level to know when to stop
-    # star schema with 1000 dimension tables and 1 fact table
-
-    # I have 2000 to have more randomicity and check more stars at last level
-    schema = SnowflakeSchema((1, 1000, 0),
-                             (0, 1000, 0))
+    
+    # star schema with 1600 dimension tables and 1 fact table
+    # POSTGRES upper limit to 1600 columns per table (can change)
+    # Fact table will have 1 pk and 1599 fk columns for the dimension tables
+    schema = SnowflakeSchema((1, 1599, 0),
+                             (0, 1599, 0))
     
     with open("create_tables.sql", 'w') as f:
         f.write(schema.make_create_tables())
@@ -213,52 +232,26 @@ if __name__ == "__main__":
         f.write('\n')
 
     # fill tables, number of rows : (min_range, max_range) (fact table always maximum)
-
-    # NOTE: 10k and 100k is min/max number of rows
-    #       BUT, on PostgreSQL side we need to run 
-    #
-    # Basically: # 1M -> 2 -> 4 -> 8 -> 10 because of limit 2M
-    
-    # INSERT INTO T_1
-    # SELECT * FROM T_1; 
-
-    # INSERT INTO T_1
-    # SELECT * FROM T_1;
-
-    # INSERT INTO T_1
-    # SELECT * FROM T_1;
-
-    # INSERT INTO T_1
-    # SELECT * FROM T_1
-    # LIMIT 2000000;
-
-    # nvm:
-    # T_1 = T_1 = fact table
-
-
     with open("fill_tables.sql", 'w') as f:
         schema.write_insert_into(f, 10_000, 1_000_000)
     
-
     try:
-        os.mkdir("queries")
+        os.mkdir("queries_with_pred")
     except FileExistsError:
         # directory already exists
         pass
 
-    # create queries
-
     # create queries 
-    # 30 to 100 step of 10
-    for n in tqdm(range(30,101,10)):
+    # 10 to 100 step of 10
+    for n in tqdm(range(10,101,10)):
         for i in range(104): # 104 because multiple of 26 (letters to name the queries)
-            with open(f"queries/{n:04d}{labels[i]}.sql", 'w') as f:
+            with open(f"queries_with_pred/{n:04d}{labels[i]}.sql", 'w') as f:
                 f.write(schema.make_query(n))
                 f.write("\n")
 
     # 100 to 1000 step of 100
     for n in tqdm(range(100,1001,100)):
         for i in range(104):
-            with open(f"queries/{n:04d}{labels[i]}.sql", 'w') as f:
+            with open(f"queries_with_pred/{n:04d}{labels[i]}.sql", 'w') as f:
                 f.write(schema.make_query(n))
                 f.write("\n")

@@ -12,6 +12,14 @@ It contains:
  - scripts used for running the tests, creating the synthetic databases, 
    generating the data to plot (inside the misc/ folder)
 
+Documentation details:
+---------------------------------------------
+1. Read Documentation under DOCS.md
+2. Download Dataset generation scripts and queries: https://drive.google.com/file/d/1_iCxt1H0yIIcBDCMcobiPyyQ-BH0JduP/view?usp=sharing
+  
+For more information about the datasets and commands: [Documentation](DOCS.md)
+Contact us for access to .dump datasets 
+
 Building with CUDA
 -----------------
 

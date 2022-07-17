@@ -23,26 +23,17 @@ class SnowflakeSchema:
             if not leaf:
                 neigs += [(*id, i) for i in range(1, self.n_dims[len(id)]+1)]
             qs.append(id)
-        # here I have all tables in qs        
-        # from qs I generate from clause
-        from_clause = ", ".join(map(lambda id: f"T_{id_to_str(id)}", qs))
-        # generate workloads (pk,fk)
-        where_clauses = []
-        # for t in qs, ara select sugkekrimena t
-        # select 25% of tables from qs
         
-        # TEST 1: (queries_2) 25% of tables have predicate, randint from 20 to 80% selective
-        # TEST 2: (queries_3) 25% of tables have predicate, randint 1 to 99 % selective
+        # here I have all tables in qs; from qs I generate from clause
+        from_clause = ", ".join(map(lambda id: f"T_{id_to_str(id)}", qs))
+        where_clauses = []
         for t in qs:
             if len(t) == 1:
                 continue
             # T {0} is the parent
             where_clauses.append("T_{0}.t_{1} = T_{1}.pk".format(
                                 id_to_str(t[:-1]), id_to_str(t)))
-            # ADD HERE PREDICATE
-        # for t in sample(qs, int(0.25*len(qs))):
-        #     if len(t) == 1:
-        #         continue
+            # Tables have a predicate, with randint from 20 to 80% selective
             sel = randint(20,80)
             rows = card[f"t_{id_to_str(t)}"]
             fk = int(np.percentile(np.array(range(rows)), sel))
@@ -78,22 +69,17 @@ if __name__ == "__main__":
         # FROM pg_class
         # WHERE relname LIKE 't\_%' AND relkind = 'r';
     # with $psql star3 > ./cardinalities.txt < ./query_cardinalities.sql 
-    readCardinalities() #  create card dict
+    readCardinalities() #  create cardinality .txt file
     # for k,v in card.items():
     #     if v == 0:
     #         print(k,v)
-    #TODO: FIX PROBLEM WHERE THESE BELOW APPEAR AS 0 IN query_cardinalities.sql
-    card["t_1_231"] = 47
-    card["t_1_527"] = 37
-    card["t_1_795"] = 22
-
 
     schema = SnowflakeSchema((1, 1599, 0),
                              (0, 1599, 0))
 
     labels = [f"{a}{b}" for a in string.ascii_lowercase for b in string.ascii_lowercase]
     try:
-        os.mkdir("queries_3")
+        os.mkdir("queries_with_pred")
     except FileExistsError:
         # directory already exists
         pass
@@ -101,8 +87,8 @@ if __name__ == "__main__":
 
     # 10 to 100 step of 10
     for n in tqdm(range(1,9)):
-        for i in range(104): # 104 because multiple of 26 (letters to name the queries)
-            with open(f"queries_3/{n:04d}{labels[i]}.sql", 'w') as f:
+        for i in range(104): # 104 because multiple of the 26 letter in alphabet (letters to name the queries)
+            with open(f"queries_with_pred/{n:04d}{labels[i]}.sql", 'w') as f:
                 f.write(schema.make_query(n))
                 f.write("\n")
 
@@ -110,13 +96,13 @@ if __name__ == "__main__":
     # # 10 to 100 step of 10
     # for n in tqdm(range(10,101,10)):
     #     for i in range(104): # 104 because multiple of 26 (letters to name the queries)
-    #         with open(f"queries_3/{n:04d}{labels[i]}.sql", 'w') as f:
+    #         with open(f"queries_with_pred/{n:04d}{labels[i]}.sql", 'w') as f:
     #             f.write(schema.make_query(n))
     #             f.write("\n")
 
     # # 100 to 1000 step of 100
     # for n in tqdm(range(100,1001,100)):
     #     for i in range(104):
-    #         with open(f"queries_3/{n:04d}{labels[i]}.sql", 'w') as f:
+    #         with open(f"queries_with_pred/{n:04d}{labels[i]}.sql", 'w') as f:
     #             f.write(schema.make_query(n))
     #             f.write("\n")

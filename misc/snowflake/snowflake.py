@@ -2,209 +2,173 @@
 
 import string
 import os
-from random import randint, sample, choice, choices
+from random import randint, choice
 
 from tqdm import tqdm
 
 
-FACT_TABLE_PATTERN="""CREATE TABLE FACT (
-    pk INT PRIMARY KEY,
-{0:s}
+TABLE_PATTERN="""CREATE TABLE T_{0:s} (
+    pk INT PRIMARY KEY{1:s}
 );
 """
 
-DIMENSION_TABLE_PATTERN="""CREATE TABLE DIM_{0:02d} (
-    pk INT PRIMARY KEY,
-{1:s}
-);
+COLUMN_PATTERN="t_{0:s} INT"
+
+FK_PATTERN="""ALTER TABLE T_{0:s}
+ADD FOREIGN KEY (t_{1:s}) REFERENCES T_{1:s}(pk);
 """
 
-LEAF_TABLE_PATTERN="""CREATE TABLE DIM_{0:02d}_{1:02d} (
-    pk INT PRIMARY KEY
-);
+DROP_FK_PATTERN="""ALTER TABLE T_{0:s}
+DROP CONSTRAINT t_{0:s}_t_{1:s}_fkey;
 """
 
-FACT_DIM_FK_PATTERN="""ALTER TABLE FACT
-ADD FOREIGN KEY (dim_{0:02d}) REFERENCES DIM_{0:02d}(pk);
-"""
-
-DIM_LEAF_FK_PATTERN="""ALTER TABLE DIM_{0:02d}
-ADD FOREIGN KEY (dim_{0:02d}_{1:02d}) REFERENCES DIM_{0:02d}_{1:02d}(pk);
-"""
-
-FACT_DIM_FK_DROP_PATTERN="""ALTER TABLE FACT
-DROP CONSTRAINT fact_dim_{0:02d}_fkey;
-"""
-
-DIM_LEAF_FK_PATTERN="""ALTER TABLE DIM_{0:02d}
-ADD FOREIGN KEY (dim_{0:02d}_{1:02d}) REFERENCES DIM_{0:02d}_{1:02d}(pk);
-"""
-
-DIM_LEAF_FK_DROP_PATTERN="""ALTER TABLE DIM_{0:02d}
-DROP CONSTRAINT dim_{0:02d}_dim_{0:02d}_{1:02d}_fkey;
-"""
-
+def id_to_str(id):
+    return '_'.join(map(str, id))
 
 class SnowflakeSchema:
-    def __init__(self, n_dims, n_leaves_per_dim):
+    def __init__(self, n_dims, n_leaves):
         self.n_dims = n_dims
-        self.n_leaves_per_dim = n_leaves_per_dim
+        self.n_leaves = n_leaves
 
-    def __make_create_fact_table(self):
-        columns = ",\n".join(["dim_%02d INT" % i for i in range(1,self.n_dims+1)])
-        return FACT_TABLE_PATTERN.format(columns)
+    def __make_create_table(self, id, leaf=False):
+        columns = ",\n    ".join([
+            COLUMN_PATTERN.format(id_to_str((*id, i)))
+            for i in range(1,self.n_dims[len(id)]+1)
+        ]) if not leaf else ""
+        if columns:
+            columns = ",\n    " + columns
+        return TABLE_PATTERN.format(id_to_str(id), columns)
 
-    def __make_create_dim_table(self, dim_id):
-        columns = ",\n".join(["dim_%02d_%02d INT" % (dim_id, i) for i in range(1,self.n_leaves_per_dim+1)])
-        return DIMENSION_TABLE_PATTERN.format(dim_id, columns)
+    def __make_create_tables_rec(self, id):
+        if len(id) >= len(self.n_dims):
+            return []
 
-    def __make_create_leaf_table(self, dim_id, leaf_id):
-        return LEAF_TABLE_PATTERN.format(dim_id, leaf_id)
+        out = []
+        for i in range(1,self.n_dims[len(id)]+1):
+            new_id = (*id,i)
+            leaf = i <= self.n_leaves[len(id)] 
+            out.append(self.__make_create_table(new_id, leaf))
+            if not leaf:
+                out += self.__make_create_tables_rec(new_id)
+        
+        return out
 
     def make_create_tables(self):
-        out = []
-        out.append(self.__make_create_fact_table())
-        for dim_id in range(1, self.n_dims+1):
-            out.append(self.__make_create_dim_table(dim_id))
-            for leaf_id in range(1, self.n_leaves_per_dim+1):
-                out.append(self.__make_create_leaf_table(dim_id, leaf_id))
+        out = self.__make_create_tables_rec(tuple())
         return '\n\n'.join(out)
 
-    def __make_foreign_keys_fact(self):
-        out = [FACT_DIM_FK_PATTERN.format(i) for i in range(1, self.n_dims+1)]
+    def __make_foreign_keys(self, id):
+        out = [FK_PATTERN.format(id_to_str(id), id_to_str((*id,i))) 
+            for i in range(1,self.n_dims[len(id)]+1)
+        ]
         return '\n'.join(out)
 
-    def __make_foreign_keys_dim(self, dim_id):
-        out = [DIM_LEAF_FK_PATTERN.format(dim_id, i) for i in range(1, self.n_leaves_per_dim+1)]
-        return '\n'.join(out)
+    def __make_foreign_keys_rec(self, id):
+        if len(id) >= len(self.n_dims):
+            return []
+
+        out = []
+        for i in range(1,self.n_dims[len(id)]+1):
+            new_id = (*id,i)
+            leaf = i <= self.n_leaves[len(id)] 
+            if not leaf:
+                out.append(self.__make_foreign_keys(new_id))
+                out += self.__make_foreign_keys_rec(new_id)
+        
+        return out
 
     def make_foreign_keys(self):
-        out = []
-        out.append(self.__make_foreign_keys_fact())
-        for dim_id in range(1, self.n_dims+1):
-            out.append(self.__make_foreign_keys_dim(dim_id))
+        out = self.__make_foreign_keys_rec(tuple())
         return '\n\n'.join(out)
 
-    def __make_drop_foreign_keys_fact(self):
-        out = [FACT_DIM_FK_DROP_PATTERN.format(i) for i in range(1, self.n_dims+1)]
+    def __make_drop_foreign_keys(self, id):
+        out = [DROP_FK_PATTERN.format(id_to_str(id), id_to_str((*id,i))) 
+            for i in range(1,self.n_dims[len(id)]+1)
+        ]
         return '\n'.join(out)
 
-    def __make_drop_foreign_keys_dim(self, dim_id):
-        out = [DIM_LEAF_FK_DROP_PATTERN.format(dim_id, i) for i in range(1, self.n_leaves_per_dim+1)]
-        return '\n'.join(out)
+    def __make_drop_foreign_keys_rec(self, id):
+        if len(id) >= len(self.n_dims):
+            return []
+
+        out = []
+        for i in range(1,self.n_dims[len(id)]+1):
+            new_id = (*id,i)
+            leaf = i <= self.n_leaves[len(id)] 
+            if not leaf:
+                out.append(self.__make_drop_foreign_keys(new_id))
+                out += self.__make_drop_foreign_keys_rec(new_id)
+        
+        return out
 
     def make_drop_foreign_keys(self):
-        out = []
-        out.append(self.__make_drop_foreign_keys_fact())
-        for dim_id in range(1, self.n_dims+1):
-            out.append(self.__make_drop_foreign_keys_dim(dim_id))
+        out = self.__make_drop_foreign_keys_rec(tuple())
         return '\n\n'.join(out)
 
-    def __make_insert_into_fact(self, fact_size, dims_sizes):
-        columns = ', '.join(["dim_%02d" % i for i in range(1,self.n_dims+1)])
+    def __make_insert_into(self, id, size, child_sizes):
+        columns = ', '.join([
+            "t_%s" % id_to_str((*id,i)) 
+            for i in range(1,len(child_sizes)+1)
+        ])
+        if columns:
+            columns = ",\n    " + columns
+
         out = []
-        out.append(f"INSERT INTO FACT (pk, {columns})")
+        out.append(f"INSERT INTO T_{id_to_str(id)} (pk{columns})")
         out.append("VALUES")
-        for i in range(fact_size):
+        for i in range(size):
             values = [i]
-            for size in dims_sizes:
-                values.append(randint(0,size-1))
-            sep = ',' if i < fact_size - 1 else ';'
+            for child_size in child_sizes:
+                values.append(randint(0,child_size-1))
+            sep = ',' if i < size - 1 else ';'
             out.append("    (%s)%s" % (', '.join(map(str, values)), sep))
 
         return '\n'.join(out)
 
-    def __make_insert_into_dim(self, dim_id, dim_size, leaves_sizes):
-        columns = ', '.join(["dim_%02d_%02d" % (dim_id, i) for i in range(1,self.n_leaves_per_dim+1)])
-        out = []
-        out.append(f"INSERT INTO DIM_{dim_id:02d} (pk, {columns})")
-        out.append("VALUES")
-        for i in range(dim_size):
-            values = [i]
-            for size in leaves_sizes:
-                values.append(randint(0,size-1))
-            
-            sep = ',' if i < dim_size - 1 else ';'
-            out.append("    (%s)%s" % (', '.join(map(str, values)), sep))
+    def __make_insert_into_rec(self, id, sizes, min_size, max_size):
+        print(f"__make_insert_into_rec{id}")
+        if len(id)+1 >= len(self.n_dims):
+            return
 
-        return '\n'.join(out)
+        for i, size in zip(range(1,self.n_dims[len(id)]+1), sizes):
+            new_id = (*id,i)
+            leaf = i <= self.n_leaves[len(id)] 
+            if not leaf:
+                child_sizes = [randint(min_size,max_size) 
+                                for _ in range(self.n_dims[len(id)+1])]
+            else:
+                child_sizes = []
+            yield self.__make_insert_into(new_id, size, child_sizes)
+            yield from self.__make_insert_into_rec(new_id, child_sizes, 
+                                                min(size//10, min_size), size)
 
-    def __make_insert_into_leaf(self, dim_id, leaf_id, leaf_size):
-        out = []
-        out.append(f"INSERT INTO DIM_{dim_id:02d}_{leaf_id:02d} (pk)")
-        out.append("VALUES")
-        for i in range(leaf_size):
-            sep = ',' if i < leaf_size - 1 else ';'
-            out.append(f"    ({i}){sep}")
-        return '\n'.join(out)
-
-    def make_insert_into(self, min_size=1000, max_size=100000):
-        out = []
-
-        dims_sizes = [randint(min_size,max_size) for i in range(self.n_dims)]
-        out.append(self.__make_insert_into_fact(max_size, dims_sizes))
-
-        for dim_id, dim_size in zip(range(1,self.n_dims+1), tqdm(dims_sizes)):
-            leaves_sizes = [randint(min_size,max_size) for i in range(self.n_leaves_per_dim)]
-            out.append(self.__make_insert_into_dim(dim_id, dim_size, leaves_sizes))
-            for leaf_id, leaf_size in zip(range(1,self.n_leaves_per_dim+1), leaves_sizes):
-                out.append(self.__make_insert_into_leaf(dim_id, leaf_id, leaf_size))
-
-        return '\n\n'.join(out[::-1])
+    def write_insert_into(self, f, min_size=10_000, max_size=1_000_000):
+        for out in self.__make_insert_into_rec(tuple(), [max_size], min_size, max_size):
+            f.write(out)
+            f.write('\n\n')
 
     def make_query(self, query_size):
-        dim_tables = list(range(1, self.n_dims+1))
-        leaf_tables = list(range(1, self.n_leaves_per_dim+1))
+        qs = []
 
-        size_choices = [i for i in (range(0, self.n_leaves_per_dim+1))]
-        n_div_4 = len(size_choices)//4
-        n_rem = len(size_choices) - 2*n_div_4 - 1
-        size_choice_weights = [1] + [8/n_div_4] * n_div_4 + [4/n_div_4] * n_div_4 + [2/n_rem] * n_rem
+        neigs = [(1,)]
+        while neigs and len(qs) < query_size:
+            id = choice(neigs)
+            neigs.remove(id)
 
-        qs = {"FACT"}
-        while len(qs) < query_size:
-            if dim_tables:
-                dim_table = choice(dim_tables)
-                dim_tables.remove(dim_table)
-
-                dim_table_name = f"DIM_{dim_table:02d}"
-                n_leaves = choices(size_choices, weights=size_choice_weights)[0]
-            else:
-                dim_table = choice(list(range(1, self.n_dims+1)))
-                dim_table_name = f"DIM_{dim_table:02d}"
-                remove_qs = [q for q in qs if dim_table_name in q]
-
-                for q in remove_qs:
-                    qs.remove(q)
-
-                n_leaves = self.n_leaves_per_dim
+            leaf = id[-1] <= self.n_leaves[len(id)-1] 
+            if not leaf:
+                neigs += [(*id, i) for i in range(1, self.n_dims[len(id)]+1)]
+            qs.append(id)
+        
             
-            n_leaves = min(n_leaves, query_size - len(qs) - 1)
-            
-            qs.add(dim_table_name)
-            for leaf in sample(leaf_tables, n_leaves):
-                qs.add(f"DIM_{dim_table:02d}_{leaf:02d}")
-                
-            
-        from_clause = ", ".join(qs)
+        from_clause = ", ".join(map(lambda id: f"T_{id_to_str(id)}", qs))
         where_clauses = []
         for t in qs:
-            if len(t) == 4: # FACT
+            if len(t) == 1:
                 continue
-            elif len(t) == 6: # DIM_XX
-                left_table = "FACT"
-                left_attr = t.lower()
-                right_table = t
-                right_attr = "pk"
-            elif len(t) == 9: # DIM_XX_XX
-                left_table = t[:6]
-                left_attr = t.lower()
-                right_table = t
-                right_attr = "pk"
-            else:
-                print("Unrecognized table ", t)
-                continue
-            where_clauses.append(f"{left_table}.{left_attr} = {right_table}.{right_attr}")
+
+            where_clauses.append("T_{0}.t_{1} = T_{1}.pk".format(
+                                id_to_str(t[:-1]), id_to_str(t)))
 
         where_clause = " AND ".join(where_clauses)
         return f"SELECT * FROM {from_clause} WHERE {where_clause}; -- {query_size}"
@@ -213,32 +177,32 @@ class SnowflakeSchema:
 if __name__ == "__main__":
     labels = [f"{a}{b}" for a in string.ascii_lowercase for b in string.ascii_lowercase]
 
-    schema = SnowflakeSchema(32, 16)
+    schema = SnowflakeSchema((1, 16, 8, 4, 0),
+                             (0,  8, 4, 4, 0))
 
-    # with open("create_tables.sql", 'w') as f:
-    #     f.write(schema.make_create_tables())
-    #     f.write('\n')
+    with open("create_tables.sql", 'w') as f:
+        f.write(schema.make_create_tables())
+        f.write('\n')
 
-    # with open("add_foreign_keys.sql", 'w') as f:
-    #     f.write(schema.make_foreign_keys())
-    #     f.write('\n')
+    with open("add_foreign_keys.sql", 'w') as f:
+        f.write(schema.make_foreign_keys())
+        f.write('\n')
 
     with open("drop_foreign_keys.sql", 'w') as f:
         f.write(schema.make_drop_foreign_keys())
         f.write('\n')
 
-    # with open("fill_tables.sql", 'w') as f:
-    #     f.write(schema.make_insert_into(1000,100000))
-    #     f.write('\n')
+    with open("fill_tables.sql", 'w') as f:
+        schema.write_insert_into(f, 10_000, 1_000_000)
 
-    # try:
-    #     os.mkdir("queries")
-    # except FileExistsError:
-    #     # directory already exists
-    #     pass
+    try:
+        os.mkdir("queries")
+    except FileExistsError:
+        # directory already exists
+        pass
 
-    # for n in tqdm(range(2,128)):
-    #     for i in range(128):
-    #         with open(f"queries/{n:02d}{labels[i]}.sql", 'w') as f:
-    #             f.write(schema.make_query(n))
-    #             f.write("\n")
+    for n in tqdm(range(2,256)):
+        for i in range(26):
+            with open(f"queries/{n:03d}{labels[i]}.sql", 'w') as f:
+                f.write(schema.make_query(n))
+                f.write("\n")

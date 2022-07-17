@@ -31,7 +31,9 @@
  * supported max number of columns.
  */
 // increase by an order of magnitude to handle 1000relation graphs (added the extra 0 at the end)
-#define MaxTupleAttributeNumber 16640	/* 8 * 208 */
+
+// change here () to increase columns
+#define MaxTupleAttributeNumber 166400	/* 8 * 208 */
 
 /*
  * MaxHeapAttributeNumber limits the number of (user) columns in a table.

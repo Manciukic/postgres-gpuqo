@@ -276,7 +276,6 @@ QueryTree<BitmapsetN> *gpuqo_run_idp2(int gpuqo_algo,
 	LOG_DEBUG("--- GOO query tree ---\n");
 	printQueryTree(goo_qt);
 
-=======
 	// TODO: Get INITIAL GOO QT cost
 	std::cout << "GOO Initial Join Tree Cost: " << goo_qt->cost.total << std::endl;
 		

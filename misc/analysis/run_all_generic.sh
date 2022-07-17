@@ -221,6 +221,10 @@ analyze-raw)
 	CMD="EXPLAIN ANALYZE"
 	GREP="grep ''"
 	;;
+summary-json) 
+	CMD="EXPLAIN (SUMMARY, FORMAT JSON)"
+	GREP="grep ''"
+	;;
 summary-raw) 
 	CMD="EXPLAIN (SUMMARY)"
 	GREP="grep ''"

@@ -12,7 +12,7 @@ top_builddir = ../../../..
 include $(top_builddir)/src/Makefile.global
 
 OBJS   = gpuqo_main.o 
-NVOBJS = gpuqo_dpsize.o gpuqo_dpsub_common.o gpuqo_dpsub_unfiltered.o gpuqo_dpsub_filtered.o gpuqo_dpsub_csg.o gpuqo_dpsub_tree.o gpuqo_dpsub_bicc.o gpuqo_debug.o gpuqo_binomial.o gpuqo_cpu_sequential.o gpuqo_cpu_dpe.o gpuqo_dependency_buffer.o gpuqo_cpu_dpsize.o gpuqo_cpu_dpsub.o gpuqo_cpu_dpsub_bicc.o gpuqo_cpu_dpsub_parallel.o gpuqo_cpu_dpccp.o gpuqo_hashtable.o gpuqo_spanning_tree.o gpuqo_planner_info.o gpuqo_main_internal.o gpuqo_bfs_indexing.o gpuqo_remapper.o gpuqo_idp.o gpuqo_mag.o gpuqo_dpdp.o gpuqo_dpdp_union.o gpuqo_cpu_goo.o gpuqo_cpu_ikkbz.o gpuqo_cpu_linearized_dp.o gpuqo_cpu_dplin.o
+NVOBJS = gpuqo_dpsize.o gpuqo_dpsub_common.o gpuqo_dpsub_unfiltered.o gpuqo_dpsub_filtered.o gpuqo_dpsub_csg.o gpuqo_dpsub_tree.o gpuqo_dpsub_bicc.o gpuqo_debug.o gpuqo_binomial.o gpuqo_cpu_sequential.o gpuqo_cpu_dpe.o gpuqo_dependency_buffer.o gpuqo_cpu_dpsize.o gpuqo_cpu_dpsub.o gpuqo_cpu_dpsub_bicc.o gpuqo_cpu_dpsub_parallel.o gpuqo_cpu_dpccp.o gpuqo_hashtable.o gpuqo_spanning_tree.o gpuqo_planner_info.o gpuqo_main_internal.o gpuqo_bfs_indexing.o gpuqo_remapper.o gpuqo_idp.o gpuqo_dpdp_union.o gpuqo_cpu_goo.o gpuqo_cpu_ikkbz.o gpuqo_cpu_linearized_dp.o gpuqo_cpu_dplin.o
 
 # NVIDIA-specific code (do not edit)
 
