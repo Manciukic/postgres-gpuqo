@@ -117,7 +117,7 @@ void printSets(GpuqoPlannerInfo<BitmapsetN>* info, DisjointSet<BitmapsetN> &ds)
 		printf("\n");
         std::cout << ds.Find(node_id) << ' ';
         // std::cout << 'size: ( ' << ds.getSize(node_id) << ' )' << '-';
-        std::cout << 'csg: ( ' << ds.getCsg(node_id) << ' )' << '-';
+        std::cout << "csg: ( " << ds.getCsg(node_id) << " )" << "-";
     }
     std::cout << std::endl;
 };
