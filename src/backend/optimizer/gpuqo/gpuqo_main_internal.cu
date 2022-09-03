@@ -116,12 +116,6 @@ static QueryTreeC *__gpuqo_run(int gpuqo_algorithm, GpuqoPlannerInfoC* info_c)
 			case GPUQO_IDP2:
 				query_tree = gpuqo_run_idp2(gpuqo_algorithm, remap_info);
 				break;
-			case GPUQO_IDPMAG:
-				query_tree = gpuqo_run_mag(gpuqo_algorithm, remap_info);
-				break;
-			case GPUQO_DPDP:
-				query_tree = gpuqo_run_dpdp(gpuqo_algorithm, remap_info);
-				break;
 			case GPUQO_UNION:
 				printf("\ncase GPUQO_UNION\n");
 				query_tree = gpuqo_run_dpdp_union(gpuqo_algorithm, remap_info);

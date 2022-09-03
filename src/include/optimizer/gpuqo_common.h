@@ -29,11 +29,9 @@ typedef enum GpuqoAlgorithm {
 } GpuqoAlgorithm;
 
 typedef enum GpuqoIDPType {
-	GPUQO_IDP1 = 1,
-	GPUQO_IDP2 = 2,
-	GPUQO_IDPMAG = 3,
-	GPUQO_DPDP=4,
-	GPUQO_UNION=5,
+	GPUQO_IDP1 = 0,
+	GPUQO_IDP2,
+	GPUQO_UNION
 	// do I need to change something here as well?
 } GpuqoIDPType;
 

@@ -482,10 +482,7 @@ const struct config_enum_entry gpuqo_algorithm_options[] = {
 const struct config_enum_entry gpuqo_idp_type_options[] = {
 	{"IDP1", GPUQO_IDP1, false},
 	{"IDP2", GPUQO_IDP2, false},
-	{"IDPMAG", GPUQO_IDPMAG, false},
-	{"DPDP", GPUQO_DPDP, false},
 	{"UNIONDP", GPUQO_UNION, false},
-	// add mine here and where else
 	{NULL, 0, false}
 };
 
