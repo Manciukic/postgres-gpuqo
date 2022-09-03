@@ -41,10 +41,10 @@ idp_type=${idp_type:-IDP2}
 
 common_opt='SET enable_seqscan TO on; SET enable_indexscan TO on; SET enable_indexonlyscan TO off; SET enable_tidscan TO off; SET enable_mergejoin TO off; SET enable_parallel_hash TO off; SET enable_bitmapscan TO off; SET enable_gathermerge TO off; SET enable_partitionwise_join TO off; SET enable_material TO off; SET enable_hashjoin TO on; SET enable_nestloop TO on'
 
-cpu_opt_pattern='SET geqo TO off; SET gpuqo_threshold TO 2; SET gpuqo_idp_type TO $idp_type; SET gpuqo_idp_n_iters TO $idp_n_iters; SET gpuqo_k_cut_edges TO $k_cut_edges'
+cpu_opt_pattern='SET geqo TO off; SET gpuqo_threshold TO 2; SET gpuqo_idp_type TO $idp_type; SET gpuqo_idp_n_iters TO $idp_n_iters'
 
 # dpsize
-dpsize_opt_pattern='SET geqo TO off; SET gpuqo_threshold TO 2; SET gpuqo_algorithm TO dpsize; SET gpuqo_scratchpad_size_mb TO $scratchpad_size; SET gpuqo_max_memo_size_mb TO $max_memo_size; SET gpuqo_n_parallel TO $n_parallel; SET gpuqo_idp_type TO $idp_type; SET gpuqo_idp_n_iters TO $idp_n_iters; SET gpuqo_k_cut_edges TO $k_cut_edges'
+dpsize_opt_pattern='SET geqo TO off; SET gpuqo_threshold TO 2; SET gpuqo_algorithm TO dpsize; SET gpuqo_scratchpad_size_mb TO $scratchpad_size; SET gpuqo_max_memo_size_mb TO $max_memo_size; SET gpuqo_n_parallel TO $n_parallel; SET gpuqo_idp_type TO $idp_type; SET gpuqo_idp_n_iters TO $idp_n_iters'
 
 # dpsub
 enable_filter=${enable_filter:-on}
@@ -57,18 +57,18 @@ csg_threshold=${csg_threshold:-32}
 filter_cpu_enum_threshold=${filter_cpu_enum_threshold:-1024}
 filter_keys_overprovisioning=${filter_keys_overprovisioning:-128}
 
-dpsub_opt_pattern='SET geqo TO off; SET gpuqo_threshold TO 2; SET gpuqo_algorithm TO dpsub; SET gpuqo_n_parallel TO $n_parallel; SET gpuqo_dpsub_filter TO $enable_filter; SET gpuqo_dpsub_filter_threshold TO $filter_threshold; SET gpuqo_dpsub_ccc TO $enable_ccc; SET gpuqo_dpsub_csg TO $enable_csg; SET gpuqo_dpsub_tree TO $enable_tree; SET gpuqo_dpsub_bicc TO $enable_bicc; SET gpuqo_dpsub_csg_threshold TO $csg_threshold; SET gpuqo_dpsub_filter_cpu_enum_threshold TO $filter_cpu_enum_threshold; SET gpuqo_dpsub_filter_keys_overprovisioning TO $filter_keys_overprovisioning; SET gpuqo_max_memo_size_mb TO $max_memo_size; SET gpuqo_min_memo_size_mb TO $min_memo_size; SET gpuqo_idp_type TO $idp_type; SET gpuqo_idp_n_iters TO $idp_n_iters; SET gpuqo_k_cut_edges TO $k_cut_edges'
+dpsub_opt_pattern='SET geqo TO off; SET gpuqo_threshold TO 2; SET gpuqo_algorithm TO dpsub; SET gpuqo_n_parallel TO $n_parallel; SET gpuqo_dpsub_filter TO $enable_filter; SET gpuqo_dpsub_filter_threshold TO $filter_threshold; SET gpuqo_dpsub_ccc TO $enable_ccc; SET gpuqo_dpsub_csg TO $enable_csg; SET gpuqo_dpsub_tree TO $enable_tree; SET gpuqo_dpsub_bicc TO $enable_bicc; SET gpuqo_dpsub_csg_threshold TO $csg_threshold; SET gpuqo_dpsub_filter_cpu_enum_threshold TO $filter_cpu_enum_threshold; SET gpuqo_dpsub_filter_keys_overprovisioning TO $filter_keys_overprovisioning; SET gpuqo_max_memo_size_mb TO $max_memo_size; SET gpuqo_min_memo_size_mb TO $min_memo_size; SET gpuqo_idp_type TO $idp_type; SET gpuqo_idp_n_iters TO $idp_n_iters'
 
 #dpe
 pairs_per_depbuf=${pairs_per_depbuf:-65536}
 n_threads=${n_threads:-8}
 
-dpe_opt_pattern='SET geqo TO off; SET gpuqo_threshold TO 2; SET gpuqo_dpe_pairs_per_depbuf TO $pairs_per_depbuf; SET gpuqo_dpe_n_threads TO $n_threads; SET gpuqo_idp_type TO $idp_type; SET gpuqo_idp_n_iters TO $idp_n_iters; SET gpuqo_k_cut_edges TO $k_cut_edges'
+dpe_opt_pattern='SET geqo TO off; SET gpuqo_threshold TO 2; SET gpuqo_dpe_pairs_per_depbuf TO $pairs_per_depbuf; SET gpuqo_dpe_n_threads TO $n_threads; SET gpuqo_idp_type TO $idp_type; SET gpuqo_idp_n_iters TO $idp_n_iters'
 
 # parallel DPsub
 chunk_size=${chunk_size:-256}
 
-dpsub_parallel_opt_pattern='SET geqo TO off; SET gpuqo_threshold TO 2; SET gpuqo_dpe_n_threads TO $n_threads; SET gpuqo_cpu_dpsub_parallel_chunk_size TO $chunk_size; SET gpuqo_idp_type TO $idp_type; SET gpuqo_idp_n_iters TO $idp_n_iters; SET gpuqo_k_cut_edges TO $k_cut_edges'
+dpsub_parallel_opt_pattern='SET geqo TO off; SET gpuqo_threshold TO 2; SET gpuqo_dpe_n_threads TO $n_threads; SET gpuqo_cpu_dpsub_parallel_chunk_size TO $chunk_size; SET gpuqo_idp_type TO $idp_type; SET gpuqo_idp_n_iters TO $idp_n_iters'
 
 case $1 in
 base)

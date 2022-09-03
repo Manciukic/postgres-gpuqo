@@ -2270,16 +2270,6 @@ static struct config_int ConfigureNamesInt[] =
 		NULL, NULL, NULL
 	},
 	{
-		{"gpuqo_k_cut_edges", PGC_USERSET, QUERY_TUNING_GPUQO,
-			gettext_noop("Sets the number of k cut edges for IDPMAG (0 to disable)."),
-			NULL,
-			GUC_EXPLAIN
-		},
-		&gpuqo_k_cut_edges,
-		0, 0, INT_MAX, // default, min, max
-		NULL, NULL, NULL
-	},
-	{
 		{"gpuqo_dplin_csg_threshold_lindp", PGC_USERSET, QUERY_TUNING_GPUQO,
 			gettext_noop("Sets the number of connected subgraphs needed to switch from ."),
 			NULL,
