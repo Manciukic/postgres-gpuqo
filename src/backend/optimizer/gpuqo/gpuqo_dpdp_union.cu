@@ -256,7 +256,6 @@ double fillPriorityQueues(std::vector<GraphEdge<BitmapsetN>*> &edge_pointers_lis
 	}
 
 
-	delete[] bfs_queue;
 	return sum_of_all_edge_costs;
 }
 
