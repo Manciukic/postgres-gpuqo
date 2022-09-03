@@ -26,7 +26,7 @@ Building with CUDA
 In order to build with CUDA, you need to specify the path to CUDA to the 
 configure scipt and the cuda version to target, e.g.
 ```
-./configure.sh --enable-cuda=/usr/local/cuda --with-cudasm=61
+./configure --enable-cuda=/usr/local/cuda --with-cudasm=61
 ```
 In case CUDA is installed in /usr/local/cuda, and the GPU has compute 
 capability 6.1 (e.g. GTX 1080Ti).
