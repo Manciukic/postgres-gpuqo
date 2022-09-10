@@ -2,23 +2,24 @@
 # Tutorial
 This file contains walkthroughs to generating some of the results of the paper.
 
-## MPDP on Star database  
+## MPDP on Star database
 ### Create an example star database
-1. change directory to `$REPO/scripts/databases/small/star`
+1. change directory to `$REPO/scripts/databases/star-small`
 
 2. generate SQL scripts for creation and queries running `./star.py`
 
 3. create and populate the DB in Postgres
 ```bash
-createdb -p $PORT star-small
-psql -p $PORT -f create_tables.sql star-small
-psql -p $PORT -f fill_tables.sql star-small
+DBNAME=star-small
+createdb -p $PORT $DBNAME
+psql -p $PORT -f create_tables.sql $DBNAME
+psql -p $PORT -f fill_tables.sql $DBNAME
 
 # try out a query
-psql -p $PORT -f queries/02aa.sql star-small
+psql -p $PORT -f queries/02aa.sql $DBNAME
 ```
 
-### Optimize your first query using GPUs 
+### Optimize your first query using GPUs
 1. change directory to `$REPO/scripts/query`
 
 2. stop the Postgres daemon
@@ -40,7 +41,7 @@ QUERYDIR=../databases/small/star/queries
 # 7. queries to run
 # environment options (most important):
 # * GPU options:
-#   - max_memo_size: memory available to the GPU algorithm in MB (default 7G). 
+#   - max_memo_size: memory available to the GPU algorithm in MB (default 7G).
 #       make sure this is lower than the available GPU memory
 #   - n_parallel: configures parallelism level (default 40960). As a rule of thumb,
 #       set it to number of multiprocessors times number of threads per multiprocessor.

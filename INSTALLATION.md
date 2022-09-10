@@ -31,7 +31,7 @@ $ /usr/local/cuda/extras/demo_suite/deviceQuery | grep Capability
 ```
 
 ### Installation
-1. from the build folder (which can be the same as the repository root), 
+1. from the build folder (which can be the same as the repository root),
     run the `configure` script
 ```bash
 # (optional) enable bitmapset extension if available
@@ -61,7 +61,7 @@ mkdir -p $PG_PREFIX
 2. from the build folder run `make`
 ```bash
 # see README for list of available options.
-# we always built with profiling enabled which prints additional timing 
+# we always built with profiling enabled which prints additional timing
 # information.
 # For debugging purposes, you might want to compile with enable_debug=yes
 # pass -jN for faster build time
@@ -70,7 +70,7 @@ make -j $(nproc) enable_gpuqo_profiling=yes
 
 3. finally, run `make install`
 
-4. (optional) run `make -j $(nproc) world` and `make install-world` to get 
+4. (optional) run `make -j $(nproc) world` and `make install-world` to get
     the extensions (used in Musicbrainz database)
 
 ### Setup
@@ -81,7 +81,7 @@ export PATH=$PG_PREFIX/bin:$PATH
 
 2. create new PGDATA folder
 ```bash
-# 
+#
 export PGDATA=/home/user/postgres/data
 mkdir -p $PGDATA
 
@@ -98,6 +98,6 @@ setsid postgres -p $PORT > /tmp/pgout 2> /tmp/pgerr &
 less /tmp/pgerr
 # LOG:  database system is ready to accept connections
 
-# to stop the daemon you can run 
+# to stop the daemon you can run
 # kill $(head -n 1 < $PGDATA/postmaster.pid)
-``` 
+```

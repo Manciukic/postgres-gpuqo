@@ -83,7 +83,7 @@ with open("fill_tables.sql", 'w') as f:
     f.write(make_insert_into(N))
     f.write('\n')
 
-makedirs("queries")
+makedirs("queries", exist_ok=True)
 for n in range(2,N):
     for i in range(10):
         with open(f"queries/{n:02d}{labels[i]}.sql", 'w') as f:
