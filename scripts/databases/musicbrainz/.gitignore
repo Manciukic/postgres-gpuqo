@@ -1,0 +1,3 @@
+*.sql
+/musicbrainz-server
+*tar.bz2
