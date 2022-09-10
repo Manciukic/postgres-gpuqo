@@ -9,6 +9,9 @@ import string
 # number of tables (including fact table)
 N = 40
 
+# number of queries per size
+R = 10
+
 # random seed
 SEED = 0xdeadbeef
 
@@ -85,7 +88,7 @@ with open("fill_tables.sql", 'w') as f:
 
 makedirs("queries", exist_ok=True)
 for n in range(2,N):
-    for i in range(10):
+    for i in range(R):
         with open(f"queries/{n:02d}{labels[i]}.sql", 'w') as f:
             f.write(make_query(N, n))
             f.write("\n")
