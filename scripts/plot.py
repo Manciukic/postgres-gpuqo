@@ -96,7 +96,7 @@ def load_results(folder, timeout=np.nan):
                         gpuqo_time = t
                 # else:
                 #     print(f"Unexpected line: {line.strip()}")
-    
+
     for query, d in queries.items():
         for metric in ['plan', 'exec', 'total', 'gpuqo']:
             d[f"{metric}_time_avg"] = np.mean(d[f"{metric}_time_raw"])
@@ -119,7 +119,7 @@ def add_table_count(queries, sql_folder):
             else:
                 print("%s not found" % path)
                 remove_keys.add(query)
-    
+
     for k in remove_keys:
         del queries[k]
 
@@ -128,15 +128,15 @@ def add_table_count(queries, sql_folder):
 def remove_incomplete_runs(queries):
     remove_tables = set()
     for _query, d in queries.items():
-        if any(np.isnan(d[f"{metric}_time_avg"]) 
+        if any(np.isnan(d[f"{metric}_time_avg"])
                 for metric in ['plan', 'exec', 'total', 'gpuqo']):
             remove_tables.add(d['tables'])
-    
+
     remove_keys = set()
     for query, d in queries.items():
         if d["tables"] in remove_tables:
             remove_keys.add(query)
-        
+
     for key in remove_keys:
         del queries[key]
 
@@ -172,8 +172,8 @@ def line_plot_count_time(queries, metric="plan", label=None, ratio=False, color=
             mask = (x == n) & (y > 0)
             if np.any(mask):
                 x_line.append(n)
-                y_line.append(gmean(y[mask]))   
-                y_err.append([np.min(y[mask]), np.max(y[mask])]) 
+                y_line.append(gmean(y[mask]))
+                y_err.append([np.min(y[mask]), np.max(y[mask])])
     else:
         y = np.array([queries[k][f'{metric}_time_avg'] for k in keys])
 
@@ -181,7 +181,7 @@ def line_plot_count_time(queries, metric="plan", label=None, ratio=False, color=
             mask = (x == n) & (y > 0)
             if np.any(mask):
                 x_line.append(n)
-                y_line.append(np.average(y[mask]))   
+                y_line.append(np.average(y[mask]))
                 y_err.append([np.min(y[mask]), np.max(y[mask])])
 
     if errorbar:
@@ -195,20 +195,20 @@ def generic_plot(series, line=False, scatter=True, metric="plan", ratio_baseline
     for i, (s, queries) in enumerate(series.items()):
         if scatter:
             scatter_plot_count_time(
-                queries, 
-                metric=args.metric, 
-                label=s if not line else None, 
+                queries,
+                metric=args.metric,
+                label=s if not line else None,
                 ratio=ratio_baseline is not None,
-                color=f"C{i if not ratio_baseline else i+1}", 
+                color=f"C{i if not ratio_baseline else i+1}",
                 marker=next(markers),
                 shift=shifts[i],
                 marker_size=10 if line else 40
             )
-        if line: 
+        if line:
             line_plot_count_time(
-                queries, 
-                metric=args.metric, 
-                label=s, 
+                queries,
+                metric=args.metric,
+                label=s,
                 ratio=ratio_baseline is not None,
                 color=f"C{i if not ratio_baseline else i+1}",
                 errorbar=(error_bar and not scatter)
@@ -287,10 +287,10 @@ def export_csv(csv_file, series, metric, ratio=False, ratio_baseline=None):
     aggr_label = "gmean" if ratio else "avg"
 
     header = (
-        "series", 
-        "query", 
-        "type", 
-        "n_rels", 
+        "series",
+        "query",
+        "type",
+        "n_rels",
         f"{metric}_time{f'_ratio({ratio_baseline})' if ratio else ''}"
     )
     output = []
@@ -319,12 +319,12 @@ def export_csv(csv_file, series, metric, ratio=False, ratio_baseline=None):
                     n,
                     aggr_fun(y[mask])
                 ))
-    
+
     with open(csv_file, 'w', newline='') as myfile:
         wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
         wr.writerow(header)
         wr.writerows(output)
-    
+
     return output
 
 
@@ -355,7 +355,7 @@ if __name__ == "__main__":
         {
             query:content
             for query, content in load_results_complete(folder, args.sql_folder).items()
-            if (content['tables'] >= args.min_tables 
+            if (content['tables'] >= args.min_tables
                 and content['tables'] <= args.max_tables)
         }
         for folder in args.result_folders
@@ -374,7 +374,7 @@ if __name__ == "__main__":
             for query in queries:
                 new_series[new_label][query] = {
                     f"{metric}_time_ratio": ratio(
-                        queries[query][f"{metric}_time_avg"], 
+                        queries[query][f"{metric}_time_avg"],
                         series[baseline][query][f"{metric}_time_avg"]
                     ) if query in series[baseline] else np.nan
                     # for metric in ['plan', 'exec', 'total', 'gpuqo']
@@ -389,36 +389,36 @@ if __name__ == "__main__":
 
     if args.type == 'scatter':
         scatter_plot(
-            series, 
-            metric=args.metric, 
+            series,
+            metric=args.metric,
             ratio_baseline=ratio_baseline,
             max_shift=args.shift,
             minor_ticks=args.ticks
         )
     elif args.type == 'bar':
         bar_plot(
-            series, 
-            metric=args.metric, 
+            series,
+            metric=args.metric,
             ratio_baseline=ratio_baseline,
             minor_ticks=args.ticks
         )
     elif args.type == 'line':
         line_plot(
-            series, 
-            metric=args.metric, 
+            series,
+            metric=args.metric,
             ratio_baseline=ratio_baseline,
             max_shift=args.shift,
             minor_ticks=args.ticks
         )
     elif args.type == 'scatter_line':
         scatter_line_plot(
-            series, 
-            metric=args.metric, 
+            series,
+            metric=args.metric,
             ratio_baseline=ratio_baseline,
             max_shift=args.shift,
             minor_ticks=args.ticks
         )
-    
+
     if args.csv:
         export_csv(args.csv, series, args.metric, args.ratio, ratio_baseline)
 
@@ -426,4 +426,3 @@ if __name__ == "__main__":
         plt.savefig(args.save)
     else:
         plt.show()
-    
