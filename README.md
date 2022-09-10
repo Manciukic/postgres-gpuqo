@@ -228,3 +228,7 @@ Other folders:
  - `scripts/` contains example scripts to run some queries and generate random
 databases.
  - `misc/` contains other scripts and files used in the experiments on the paper.
+
+## Publications
+ - Riccardo Mancini, Srinivas Karthik, Bikash Chandra, Vasilis Mageirakos, and Anastasia Ailamaki 2022. Efficient Massively Parallel Join Optimization for Large Queries. In SIGMOD '22: International Conference on Management of Data, Philadelphia, PA, USA, June 12 - 17, 2022 (pp. 122–135). ACM. https://doi.org/10.1145/3514221.3517871
+ - Vasilis Mageirakos, Riccardo Mancini, Srinivas Karthik, Bikash Chandra, and Anastasia Ailamaki 2022. Efficient GPU-accelerated Join Optimization for Complex Queries. In 38th IEEE International Conference on Data Engineering, ICDE 2022, Kuala Lumpur, Malaysia, May 9-12, 2022 (pp. 3190–3193). IEEE. https://doi.org/10.1109/ICDE53745.2022.00295
