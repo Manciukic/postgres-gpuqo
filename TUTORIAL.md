@@ -62,17 +62,17 @@ bash run_all_generic.sh gpuqo_bicc_dpsub \
 ```
 
 ### Run multiple experiments and plot results
-In the `scripts/examples/start-small` folder there is an example on how the scripts
+In the `scripts/examples/optimal` folder there is an example on how the scripts
 in the `scripts/` folder can be used to run multiple experiments on the `star-small`
 database just created.
 
 ```bash
 # this command will run many experiments using the run_all_generic.sh script
 # see the contents of the script for more options
-bash run_experiments.sh
+bash run_experiments.sh star-small
 
 # this command will aggregate the data in the benchmarks/ folder and generate
 # a plot (plot.png)
 # see the contents of the script for more options
-bash plot.sh
+bash plot.sh star-small
 ```
