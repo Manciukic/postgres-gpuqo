@@ -101,3 +101,22 @@ less /tmp/pgerr
 # to stop the daemon you can run
 # kill $(head -n 1 < $PGDATA/postmaster.pid)
 ```
+
+## Other Build Options
+
+Timing information can be printed to stdout for gpuqo algorithms setting
+`enable_gpuqo_profiling=yes` in make:
+```bash
+make enable_gpuqo_profiling=yes
+```
+
+Other useful make variables:
+ - enable_debug=[yes/no]: enable debugging symbols generation
+ - cost_function=[cout/simple/postgres]: choose cost function used by gpuqo
+   algorithms: cout (C_out), simple (join-order-benchmark paper, with the
+   addition of sort-merge joins), postgres (returns the same cost as
+   Postgres but only supports a limited set of queries)
+ - simulate_complex_cost_function=[yes/no]: add overhead to the cost function
+ - disable_ccc=[yes/no]: globally disables CCC (warp divergence avoidance
+   method). The gpuqo_dpsub algorithm can be run without ccc at runtime (no
+   need to set this option).
