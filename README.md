@@ -81,7 +81,7 @@ choose the algorithm and its parameters:
     * `gpuqo_dpe_n_threads`: number of threads to use (both dpe_* and parallel_*).
     * `gpuqo_cpu_dpsub_parallel_chunk_size`: number of sets to unrank at a time
                                            per worker in DPSUB parallel variant.
-   - IDP options:
+   - IDP/UnionDP options:
      * `gpuqo_idp_type`: IDP1 or IDP2 or UNIONDP
      * `gpuqo_idp_n_iters`: k parameter for IDP and UNIONDP (recommended = 25), 0 to disable
 
