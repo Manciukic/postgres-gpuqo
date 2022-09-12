@@ -7,15 +7,16 @@ Uses the EXPLAIN command of postgres to get a printout of the calculated costs
 
 **Example 1:**   
 "Run UNIONDP (15) on snowflake3 query 40aa.sql with mpdp on GPU and output json summary with no warmup ":  
-`$ idp_type=UNIONDP idp_n_iters=15 ./run_all_generic.sh gpuqo_bicc_dpsub summary-json snowflake3 postgres 65 'SELECT 1;' /scratch2/rmancini/postgres/src/misc/snowflake2/queries/0040aa.sql`   
+`$ idp_type=UNIONDP idp_n_iters=15 ./run_all_generic.sh gpuqo_bicc_dpsub summary-json snowflake3 postgres 65 'SELECT 1;' /queries/0040aa.sql`   
 
 **Example 2:**  
 "Run all 30 and 1000 rel experiments for UNIONDP(MPDP) with max partition size 25, warmup query 0100aa.sql, and save the results in /scratch2/postgres/benchmarks/UNIONDP/<filename.txt>:"
 
-`$ idp_type=UNIONDP idp_n_iters=25 ./run_all_generic.sh gpuqo_bicc_dpsub summary-full snowflake3 postgres 65 /scratch2/rmancini/postgres/src/misc/snowflake2/queries/0100aa.sql /scratch2/rmancini/postgres/src/misc/snowflake2/queries/0030**.sql /scratch2/rmancini/postgres/src/misc/snowflake2/queries/1000**.sql | tee /scratch2/postgres/benchmarks_5/UNIONDP/0315_union15card.txt`
+`$ idp_type=UNIONDP idp_n_iters=25 ./run_all_generic.sh gpuqo_bicc_dpsub summary-full snowflake3 postgres 65 /queries/0100aa.sql /queries/0030**.sql /queries/1000**.sql | tee /benchmarks/UNIONDP/union15.txt`
 
 In general:  
 `$ idp_type=HEUR_TYPE idp_n_iters=X ./run_all_generic.sh ALGORITHM SUMMARY-TYPE DATABASE USER TIMEOUT WARMUP_QUERY TARGET_QUERY`
+
 - HEURISTIC_TYPE (only needed for heuristics) = IDP1, IDP2, UNIONDP 
 - X (only needed for idp/union heuristics) = integer k usually 15 or 25 (max partition size)
 - `ALGORITHM`: 
@@ -40,7 +41,7 @@ In general:
 **Example:**   
 Assuming all experiments have been saved under directories in `/benchmark/ALGORITHM` calculate the normalized cost (using postgres cost estimator `postgres_cost`) table as per the table in the paper:
 
-`$ python3 analyze_cost.py  /benchmark/GEQO /benchmark_snow2/GOO /benchmark_snow2/LINDP /benchmark_snow2/IDP_25  /benchmark_snow2/UNIONDP_25 /benchmark_snow2/IDP_25_fk  -m postgres_cost -t scatter_line --csv /benchmark_snow2/results/0310_results_fk.csv  -r`   
+`$ python3 analyze_cost.py  /benchmark/GEQO /benchmark/GOO /benchmark/LINDP /benchmark/IDP_25  /benchmark/UNIONDP_25 /benchmark/IDP_25  -m postgres_cost -t scatter_line --csv /benchmark/results/results_fk.csv  -r`   
 
 
 # Setup build flags (debug and release)   
