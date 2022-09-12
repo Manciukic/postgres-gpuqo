@@ -4,7 +4,7 @@ This repository contains the implementation of the new join order optimization
 algorithms described in the paper "Efficient Massively Parallel Join
 Optimization for Large Queries".
 It contains:
- - source code for the novel MPDP algorithm, both CPU and GPU
+ - source code for the novel MPDP/UnionDP algorithms, both CPU and GPU
  - source code for the CPU and GPU baseline algorithms (dpsize, dpsub, dpccp,
    dpe, gpu-dpsize, gpu-dpsub)
  - source code of other experimental algorithms (e.g. dpsub-csg)
@@ -14,11 +14,8 @@ It contains:
 ## Documentation
 
 1. To compile and install Postgres with GPU optimization follow the [Installation Guide](INSTALLATION.md)
-2. To run an example query, experiments and plot the results follow the small [Tutorial](TUTORIAL.md).
-3. Other documentation can be found under [DOCS.md](DOCS.md)
-4. Download Dataset generation scripts and queries: https://drive.google.com/file/d/1_iCxt1H0yIIcBDCMcobiPyyQ-BH0JduP/view?usp=sharing
-
-Contact us for access to .dump datasets
+2. To run an example query, experiments and plot the results follow [Tutorial](TUTORIAL.md).
+3. Other documentation can be found under [DOCS.md](DOCS.md) and under `/scripts/databases` for each dataset
 
 ## Usage
 
@@ -85,8 +82,8 @@ choose the algorithm and its parameters:
     * `gpuqo_cpu_dpsub_parallel_chunk_size`: number of sets to unrank at a time
                                            per worker in DPSUB parallel variant.
    - IDP options:
-     * `gpuqo_idp_type`: IDP1 or IDP2 or IDPMAG or DPDP or UNION_DPDP
-     * `gpuqo_idp_n_iters`: k parameter for IDP, 0 to disable
+     * `gpuqo_idp_type`: IDP1 or IDP2 or UNIONDP
+     * `gpuqo_idp_n_iters`: k parameter for IDP and UNIONDP (recommended = 25), 0 to disable
 
 ### Example
 running IDP2 with MPDP (GPU) using k = 25:
@@ -129,7 +126,7 @@ overheads of the CUDA driver.
 In bash, you can specify also `<(echo "SELECT 1;")` if you don't want to specify a
 query.
 
-For more information about how bulk experiments were run refer to the [Tutorial](TUTORIAL.md)
+For more information about how bulk experiments were run refer to [Tutorial](TUTORIAL.md) and [DOCS](DOCS.md)
 
 ## Limitations
 
@@ -213,6 +210,8 @@ All gpuqo algorithms are inside `src/backend/optimizer/gpuqo/`
     Simple GPU hashtable using open addressing
  - `gpuqo_idp.cu`
     IDP1 and IDP2 implementation
+ - `gpuqo_dpdp_union.cu`
+    UNIONDP implementation
  - `gpuqo_planner_info.cu`, `gpuqo_planner_info.cuh`:
     Utilities for converting planner info between different sizes
  - `gpuqo_postgres.cuh`:
