@@ -1,7 +1,6 @@
 /*------------------------------------------------------------------------
  *
  * gpuqo_dpdp_union.cu
- *      dp over dp and k-cut implementation
  *
  * src/backend/optimizer/gpuqo/gpuqo_dpdp_union.cu
  *
