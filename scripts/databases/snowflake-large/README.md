@@ -1,4 +1,4 @@
-# Snowflake Schema (1000 tables - 4 level deep snowflake t_l1_l2_l3_l4):   
+# Snowflake Schema (3555 tables - 5 level deep snowflake t_l1_l2_l3_l4_l5):   
 
 Fact table cardinality : 10M     
 Dimension table cardinality : random between (10k, 1M)   

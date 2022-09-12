@@ -123,8 +123,7 @@ You will find documentation and scripts needed under `/scripts/databases`
 ## Snowflake  
 - location: `/scripts/databases/snowflake-large`  
 
-Snowflake Schema (1000 tables - 4 level deep snowflake t_l1_l2_l3_l4):   
-
+3555 tables - 5 level deep snowflake t_l1_l2_l3_l4_l5
 Fact table cardinality : 10M     
 Dimension table cardinality : random between (10k, 1M)   
 Queries: Up to 1000 relations, but you can generate more with scripts provided
