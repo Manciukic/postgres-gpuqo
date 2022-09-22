@@ -50,10 +50,6 @@ LIBS := $(filter-out -lz -lreadline -ledit -ltermcap -lncurses -lcurses, $(LIBS)
 ifeq ($(with_systemd),yes)
 LIBS += -lsystemd
 endif
-CLAGS += -I/scratch2/mageirak/KaHIP/interface
-LDFLAGS += -L/scratch2/mageirak/KaHIP/build/
-# LIBS += -linterface
-LIBS += -linterface_static
 
 # CUDA
 ifeq ($(enable_cuda),yes)

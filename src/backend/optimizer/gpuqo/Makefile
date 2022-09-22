@@ -24,7 +24,6 @@ NVCC := $(cuda_path)/bin/nvcc
 NVCCFLAGS ?= $(CPPFLAGS) 
 
 NVCCFLAGS += -Wno-deprecated-gpu-targets  --forward-unknown-to-host-compiler
-NVCCFLAGS += -I/scratch2/mageirak/KaHIP/interface
 # from email
 # NVCCFLAGS += -Wconversion  #???????
 
